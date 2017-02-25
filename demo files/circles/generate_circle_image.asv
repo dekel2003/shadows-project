@@ -1,0 +1,9 @@
+function [ circle ] = generate_circle_image(logicalImg, R, X, Y )
+% creates 2D "logical" Matrix of a circle of radius R, located at (X,Y)
+
+[Rows,Cols] = size(logicalImg);
+circle = (Rows - Y).^2 ...
+    + (Cols - X).^2 <= R.^2;
+
+end
+
