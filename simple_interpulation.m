@@ -39,7 +39,7 @@ I = @(t) (phi(t) * I0);
 h = figure;
 for t = 0:0.2:1
     subplot(2,3,1+5*t);
-    curr_I = reshape(I(t),imageSizeY,imageSizeX);
+    curr_I = reshape(I(t),imageSizeY+1,imageSizeX+1);
     imshow(curr_I);
     header = sprintf('t=%0.1f',t);
     title(header);
