@@ -9,9 +9,9 @@ load('circles.mat');
 [imageSizeY,imageSizeX] = size(I0);
 
 %% get pictures params
+number_of_faces = numel(I0);
 I0 = faces2vertices(double(I0));
 I1 = faces2vertices(double(I1));
-number_of_faces = numel(I0);
 
 %% show images
 subplot(1,2,1);
@@ -21,14 +21,11 @@ subplot(1,2,2);
 % imshow(full(reshape(I1,imageSizeY,imageSizeX)));
 imshow(I1);
 
-%% calculate data fidelity term without smothness
+%% calculate the vector field by the simple interpolation:
+
 I0 = sparse(I0(:));
 I1 = sparse(I1(:));
-
-% grad_I = gradient(I0);
 number_of_vertices = numel(I0);
-
-%% calculate the vector field by the simple interpolation:
 
 v = (I0' \ (I1-I0)')';
 id = eye(size(v));

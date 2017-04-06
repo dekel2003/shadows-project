@@ -103,6 +103,32 @@ $K = I_0^ T I_0$ is PSD Matrix $(K \geq 0)$ \\
 $f =  - I_0^T (I_1-I_0) $ \\
 $c = (I_1-I_0)^T (I_1-I_0) $
 
+
+\newpage
+
+find $v^{opt}$
+
+\begin{eqnarray}
+v^{opt} = 
+\argmin _v \frac{1}{2}
+v^T A_f \triangle v + \frac{1}{2 \sigma^2}
+(I_1 - I_0 + v \cdot I_0)^T
+A_v
+(I_1 - I_0 + v \cdot I_0)
+\end{eqnarray}
+
+derivative:
+\begin{eqnarray}
+\frac{dE}{dv} = 
+A_f \triangle v + 
+\frac{1}{\sigma^2} I_0^T A_v (I_1 - I_0 + v I_0)
+\end{eqnarray}
+
+Steepest Descent:
+\begin{eqnarray}
+v^{k+1} = v^k - \alpha \frac{dE}{dv}
+\end{eqnarray}
+
 \end{document}
 
 
