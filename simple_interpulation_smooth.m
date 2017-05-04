@@ -35,20 +35,23 @@ v = (I0' \ (I1-I0)')';
 %% gradient descent
 Af = sparse(1:number_of_faces,1:number_of_faces,ones(number_of_faces,1));
 v = (I0' \ (I1-I0)')';
-sigma = 2;
+sigma = 4;
 Av = get_vertices_areas(imageSizeY,imageSizeX);
 
 alpha = 0.0005;
 last_v = v;
-prevE = v' * Av * laplace2(v) - (1/2*sigma^2) * Av * (I1 - I0 + v*I0) * (I1 - I0 + v*I0)';
+% prevE = v' * Av * laplace2(v) - (1/2*sigma^2) * Av * (I1 - I0 + v*I0) * (I1 - I0 + v*I0)';
+prevE = v' .* Av .* laplace2(v) - (1/2*sigma^2) * Av * (I1 - I0 + v*I0) * (I1 - I0 + v*I0)';
 prevE = prevE.^2;
 prevE = full(sum(prevE(:)));
 
 while true
-    dEdv = (Av * laplace2(v) - (1/sigma^2) * Av * I0 * (I1 - I0 + v*I0)');
+%     dEdv = (Av * laplace2(v) - (1/sigma^2) * Av * I0 * (I1 - I0 + v*I0)');
+    dEdv = (Av .* laplace2(v) - (1/sigma^2) * Av * I0 * (I1 - I0 + v*I0)');
     v = v - alpha * dEdv;
 
-    E = v' * Av * laplace2(v) - (1/2*sigma^2) * Av * (I1 - I0 + v*I0) * (I1 - I0 + v*I0)';
+%     E = v' * Av * laplace2(v) - (1/2*sigma^2) * Av * (I1 - I0 + v*I0) * (I1 - I0 + v*I0)';
+    E = v' .* Av .* laplace2(v) - (1/2*sigma^2) * Av * (I1 - I0 + v*I0) * (I1 - I0 + v*I0)';
     E = E.^2;
     E = full(sum(E(:)));
     
