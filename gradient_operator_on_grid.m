@@ -23,7 +23,7 @@ i = 1:m-R;
 result_y(sub2ind(size(result_y), i, i+R)) = 1;
 result_y(sub2ind(size(result_y), i+R, i)) = -1;
 
-result = sparse([result_x result_y]/4);
+result = sparse([result_x;result_y]/4);
 end
 
 
