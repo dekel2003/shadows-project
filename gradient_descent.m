@@ -21,7 +21,7 @@ end
 
 function alpha_new = armijo(f, grad_f_x, x, alpha, beta, sigma)
     m = sum(grad_f_x .* normc(grad_f_x));
-    t = -sigma * m + sqrt(sqrt(eps))*1000;
+    t = -sigma * m;
     alpha_new = alpha;
     if (f(x) - f(x + alpha_new*grad_f_x)) < alpha_new*t
         alpha_new = alpha_new * beta;
