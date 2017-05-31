@@ -6,8 +6,8 @@ close all;
 addpath(genpath(pwd));
 load('circles.mat');
 
-I0 = imresize(I0, 0.1);
-I1 = imresize(I1, 0.1);
+I0 = imresize(I0, 0.4);
+I1 = imresize(I1, 0.4);
 
 [imageSizeY,imageSizeX] = size(I0);
 grad_op    = gradient_operator_on_grid(I1); % 2m x m sparse gradient op
@@ -39,7 +39,8 @@ n = numel(f2v*I0);
 Av = get_vertices_areas(imageSizeY,imageSizeX); % areas of vertices
 Af = sparse(1:m,1:m,ones(m,1)); % areas of faces
 Af = [Af zeros(size(Af)) ; zeros(size(Af)) Af];
-alpha = 1; % smoothness constant
+alpha = 0.5; % smoothness constant
+lambda = 1;
 
 % I0 = f2v * I0;
 % I1 = f2v * I1;
@@ -51,10 +52,10 @@ CI = @(v) f2v * I0 + f2v * (vector_fields_multiplication( v, grad_op * I0 ));
 curr_diff = @(v) (f2v * I1 - CI(v));
 
 E = @(v) curr_diff(v)' * Av * curr_diff(v) + ... % fidelity term
-    v' * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v; % regularization term
+    lambda * v' * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v; % regularization term
 
 grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0, speye(2*m) ))' * f2v' * Av * curr_diff(v) + ...
-    2 * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v;
+    lambda * 2 * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v;
 
 % this term is functional map C multiplied by given I
 % C = @(t,v,I) f2v * I + t * f2v * (vector_fields_multiplication( v, grad_op * I ));
@@ -77,10 +78,10 @@ grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0, speye(2*m) ))' *
 
 %% gradient descent
 
-alpha0 = 1;
+alpha0 = 1.1;
 beta = 0.8;
 sigma = 0.00001;
-epsilon = 1e-1;
+epsilon = 5e-1;
 [ min_v, min_E ] = gradient_descent( E, grad_E, v0, alpha0, beta, sigma, epsilon );
 
 
@@ -92,13 +93,13 @@ epsilon = 1e-1;
 % min_v = min_v * 100;
 min_v(1:m) = min_v(1:m) * imageSizeX;
 min_v(m+1:2*m) = min_v(m+1:2*m) * imageSizeY;
-% I = @(t) I0 + 10*t * (vector_fields_multiplication( min_v, grad_op * I0 ));
-I = @(t) t * (vector_fields_multiplication( min_v, grad_op * I0 ));
+I = @(t) I0 + t * (vector_fields_multiplication( min_v, grad_op * I0 ));
+% I = @(t) t * (vector_fields_multiplication( min_v, grad_op * I0 ));
 h = figure;
 for t = 0:0.2:1
     subplot(2,3,1+5*t);
     curr_I = reshape(I(t),imageSizeY,imageSizeX);
-    imshow(full(curr_I));
+    imshow(full(curr_I),[0,1]);
     header = sprintf('t=%0.1f',t);
     title(header);
 end
