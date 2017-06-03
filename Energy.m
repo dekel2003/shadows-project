@@ -3,8 +3,8 @@ function [E,grad_E] = Energy(v)
 addpath(genpath(pwd));
 load('circles.mat');
 
-I0 = imresize(I0, 0.5);
-I1 = imresize(I1, 0.5);
+I0 = imresize(I0, 0.1);
+I1 = imresize(I1, 0.1);
 
 [imageSizeY,imageSizeX] = size(I0);
 grad_op    = gradient_operator_on_grid(I1); % 2m x m sparse gradient op
@@ -42,3 +42,15 @@ end
 
 end
 
+function test
+%% check correctness of gradient of E
+v0 = zeros(2*m,1)/15;
+rng(0,'twister'); 
+options = optimoptions(@fmincon, 'Algorithm', 'interior-point',... 
+    'CheckGradients', 'on', 'MaxIter', 5, 'SpecifyObjectiveGradient', 'on');
+
+[x fval exitflag output] = fmincon(@Energy, v0,[],[],[],[],[],[],@Energy,options);
+% par.EPSILON = 1e-7;
+% gnum = numdiff(E,v0,par);
+% plot(abs(gnum-grad_E(v0)),'*r');
+end
