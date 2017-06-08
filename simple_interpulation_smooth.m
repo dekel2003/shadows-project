@@ -57,19 +57,15 @@ E = @(v) curr_diff(v)' * Av * curr_diff(v) + ... % fidelity term
 grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0, speye(2*m) ))' * f2v' * Av * curr_diff(v) + ...
     lambda * 2 * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v;
 
-% this term is functional map C multiplied by given I
-% C = @(t,v,I) f2v * I + t * f2v * (vector_fields_multiplication( v, grad_op * I ));
-% 
-% E = @(v) (f2v * I1 - C(1,v,I0))' * Av * (f2v * I1 - C(1,v,I0)) + ... % fidelity term
-%     v' * Af * (eye(2*m) + alpha * laplace_op_on_vector_field) * v; % regularization term
-% grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0, speye(2*m) ))' * f2v' * Av * (f2v * I1 - C(1,v,I0)) + ...
-%     2 * Af * (eye(2*m) + alpha * laplace_op_on_vector_field) * v;
+params.E = E;
+params.grad_E = grad_E;
+target = @(v) build_target_function(v, params);
 
 
 %% check correctness of gradient of E
-%     'Display', 'off', 'FunValCheck', 'on', ...
-% options = optimoptions(@fsolve, 'Algorithm', 'Levenberg-Marquardt',... 
-%     'DerivativeCheck', 'on', 'MaxIter', 20);
+
+options = optimoptions('fminunc','Algorithm','quasi-newton');
+[min_v,min_E] = fminunc(target,v0,options);
 
 % [x, fval] = fsolve(@Energy, v0, options);
 % par.EPSILON = 1e-7;
@@ -77,12 +73,12 @@ grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0, speye(2*m) ))' *
 % plot(abs(gnum-grad_E(v0)),'*r');
 
 %% gradient descent
-
-alpha0 = 1.1;
-beta = 0.8;
-sigma = 0.00001;
-epsilon = 5e-1;
-[ min_v, min_E ] = gradient_descent( E, grad_E, v0, alpha0, beta, sigma, epsilon );
+% 
+% alpha0 = 1.1;
+% beta = 0.8;
+% sigma = 0.00001;
+% epsilon = 5e-1;
+% [ min_v, min_E ] = gradient_descent( E, grad_E, v0, alpha0, beta, sigma, epsilon );
 
 
 %% results
