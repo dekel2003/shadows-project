@@ -6,12 +6,15 @@ close all;
 addpath(genpath(pwd));
 load('circles.mat');
 
-I0 = imresize(I0, 0.4);
-I1 = imresize(I1, 0.4);
+I0 = imresize(I0, 0.1);
+I1 = imresize(I1, 0.1);
+
+% Af = sparse(1:m,1:m,ones(m,1)); % areas of faces
 
 [imageSizeY,imageSizeX] = size(I0);
 grad_op    = gradient_operator_on_grid(I1); % 2m x m sparse gradient op
 laplace_op = laplace_operator_on_grid(I1);
+% laplace_op = grad_op'*Af*grad_op;
 laplace_op_on_vector_field = [laplace_op zeros(size(laplace_op)); zeros(size(laplace_op)) laplace_op];
 
 %% get pictures params
@@ -53,8 +56,8 @@ title('laplace op');
 
 %% gradient computation
 Av = get_vertices_areas(imageSizeY,imageSizeX); % areas of vertices
-Af = sparse(1:m,1:m,ones(m,1)); % areas of faces
-Af = [Af zeros(size(Af)) ; zeros(size(Af)) Af];
+Af1 = sparse(1:m,1:m,ones(m,1)); % areas of faces
+Af = [Af1 zeros(size(Af1)) ; zeros(size(Af1)) Af1];
 alpha = 0.5; % smoothness constant
 lambda = 1;
 
@@ -63,14 +66,14 @@ lambda = 1;
 
 v0 = zeros(2*m,1)/15;
 
-CI = @(v) f2v * I0 + f2v * (vector_fields_multiplication( v, grad_op * I0 ));
+CI = @(v) I0 + (vector_fields_multiplication(v)* grad_op * I0);
 
-curr_diff = @(v) (f2v * I1 - CI(v));
+curr_diff = @(v) (I1 - CI(v));
 
-E = @(v) curr_diff(v)' * Av * curr_diff(v) + ... % fidelity term
+E = @(v) curr_diff(v)' * Af1 * curr_diff(v) + ... % fidelity term
     lambda * v' * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v; % regularization term
 
-grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0, speye(2*m) ))' * f2v' * Av * curr_diff(v) + ...
+grad_E = @(v) -2 * (vector_fields_multiplication( grad_op * I0))' * Af1 * curr_diff(v) + ...
     lambda * 2 * Af * (speye(2*m) + alpha * laplace_op_on_vector_field) * v;
 
 params.E = E;
@@ -80,8 +83,10 @@ target = @(v) build_target_function(v, params);
 
 %% check correctness of gradient of E
 
-options = optimoptions('fminunc','Algorithm','quasi-newton');
+options = optimoptions('fminunc','SpecifyObjectiveGradient',true);
+% options = optimoptions('fminunc','CheckGradients',true,'SpecifyObjectiveGradient',true);
 [min_v,min_E] = fminunc(target,v0,options);
+% [min_v,min_E] = fsolve(target,v0,options);
 
 % [x, fval] = fsolve(@Energy, v0, options);
 % par.EPSILON = 1e-7;
@@ -116,6 +121,9 @@ for t = 0:0.2:1
     title(header);
 end
 
+%%
+[x,y] = meshgrid(linspace(0,1,imageSizeY),linspace(0,1,imageSizeX));
+quiver(x(:),y(:),min_v(1:m),min_v(m+1:2*m));
 %% save results
 
 fileName = sprintf('results/1_simple_interpulation.jpg');
