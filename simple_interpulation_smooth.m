@@ -35,6 +35,22 @@ I1 = sparse(I1(:));
 
 n = numel(f2v*I0);
 
+%% show gradientx, gradienty and laplacian:
+figure;
+
+grad_res = grad_op * I0;
+subplot(1,3,1);
+imshow(reshape(full(grad_res(1:m)),imageSizeY,imageSizeX),[]);
+title('grad x');
+
+subplot(1,3,2);
+imshow(reshape(full(grad_res(m+1:2*m)),imageSizeY,imageSizeX),[]);
+title('grad y');
+
+subplot(1,3,3);
+imshow(reshape(full(laplace_op * I0),imageSizeY,imageSizeX),[]);
+title('laplace op');
+
 %% gradient computation
 Av = get_vertices_areas(imageSizeY,imageSizeX); % areas of vertices
 Af = sparse(1:m,1:m,ones(m,1)); % areas of faces
