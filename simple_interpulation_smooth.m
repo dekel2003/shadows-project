@@ -17,6 +17,8 @@ laplace_op = laplace_operator_on_grid(I1);
 % laplace_op = grad_op'*Af*grad_op;
 laplace_op_on_vector_field = [laplace_op zeros(size(laplace_op)); zeros(size(laplace_op)) laplace_op];
 
+show_vec_img = @(img) imshow(reshape(full(img),imageSizeY,imageSizeX),[]);
+
 %% get pictures params
 m = numel(I0);
 f2v = faces2vertices(I0);
@@ -43,15 +45,15 @@ figure;
 
 grad_res = grad_op * I0;
 subplot(1,3,1);
-imshow(reshape(full(grad_res(1:m)),imageSizeY,imageSizeX),[]);
+show_vec_img(grad_res(1:m));
 title('grad x');
 
 subplot(1,3,2);
-imshow(reshape(full(grad_res(m+1:2*m)),imageSizeY,imageSizeX),[]);
+show_vec_img(grad_res(m+1:2*m));
 title('grad y');
 
 subplot(1,3,3);
-imshow(reshape(full(laplace_op * I0),imageSizeY,imageSizeX),[]);
+show_vec_img(laplace_op * I0);
 title('laplace op');
 
 %% gradient computation
@@ -108,8 +110,8 @@ options = optimoptions('fminunc','SpecifyObjectiveGradient',true);
 % phi = @(t) (id + t*v);
 % I = @(t) (C(t,min_v,I0));
 % min_v = min_v * 100;
-min_v(1:m) = min_v(1:m) * imageSizeX;
-min_v(m+1:2*m) = min_v(m+1:2*m) * imageSizeY;
+% min_v(1:m) = min_v(1:m) * imageSizeX;
+% min_v(m+1:2*m) = min_v(m+1:2*m) * imageSizeY;
 I = @(t) I0 + t * (vector_fields_multiplication( min_v, grad_op * I0 ));
 % I = @(t) t * (vector_fields_multiplication( min_v, grad_op * I0 ));
 h = figure;
