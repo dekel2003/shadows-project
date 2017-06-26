@@ -6,8 +6,8 @@ close all;
 addpath(genpath(pwd));
 load('circles.mat');
 
-I0 = imresize(I0, 0.1);
-I1 = imresize(I1, 0.1);
+I0 = imresize(I0, 0.5);
+I1 = imresize(I1, 0.5);
 
 % Af = sparse(1:m,1:m,ones(m,1)); % areas of faces
 
@@ -110,24 +110,28 @@ options = optimoptions('fminunc','SpecifyObjectiveGradient',true);
 % phi = @(t) (id + t*v);
 % I = @(t) (C(t,min_v,I0));
 % min_v = min_v * 100;
-% min_v(1:m) = min_v(1:m) * imageSizeX;
-% min_v(m+1:2*m) = min_v(m+1:2*m) * imageSizeY;
-I = @(t) I0 + t * (vector_fields_multiplication( min_v, grad_op * I0 ));
-% I = @(t) t * (vector_fields_multiplication( min_v, grad_op * I0 ));
-h = figure;
-for t = 0:0.2:1
-    subplot(2,3,1+5*t);
-    curr_I = reshape(I(t),imageSizeY,imageSizeX);
-    imshow(full(curr_I),[0,1]);
-    header = sprintf('t=%0.1f',t);
-    title(header);
-end
+% min_v_ = zeros(size(min_v));
+% min_v_(1:m) = min_v(1:m) * imageSizeX;
+% min_v_(m+1:2*m) = min_v(m+1:2*m) * imageSizeY;
+% I = @(t) I0 + t * (vector_fields_multiplication( min_v_ )) *grad_op * I0;
+% % I = @(t) t * (vector_fields_multiplication( min_v, grad_op * I0 ));
+% h = figure;
+% for t = 0:0.2:1
+%     subplot(2,3,1+5*t);
+%     curr_I = reshape(I(t),imageSizeY,imageSizeX);
+%     imshow(full(curr_I),[0,1]);
+%     header = sprintf('t=%0.1f',t);
+%     title(header);
+% end
 
 %%
-[x,y] = meshgrid(linspace(0,1,imageSizeY),linspace(0,1,imageSizeX));
-quiver(x(:),y(:),min_v(1:m),min_v(m+1:2*m));
+[x,y] = meshgrid(linspace(1,imageSizeX,imageSizeX),linspace(1,imageSizeY,imageSizeY));
+show_vec_img(zeros(size(I0)));
+hold on;
+quiver(x(:),y(:),min_v(1:m),min_v(m+1:2*m),3,'LineWidth',2,'Color','r');
+hold off;
 %% save results
-
-fileName = sprintf('results/1_simple_interpulation.jpg');
-saveas(h,fileName);
+% 
+% fileName = sprintf('results/1_simple_interpulation.jpg');
+% saveas(h,fileName);
 

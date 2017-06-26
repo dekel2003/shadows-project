@@ -1,4 +1,4 @@
-function [ result ] = vector_fields_multiplication( v, u )
+function [ result ] = vector_fields_multiplication( v )
 % first vector is interpret as a m x 2m matrix
 % u is 2m x k matrix
 % result - m x k matrix

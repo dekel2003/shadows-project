@@ -3,8 +3,8 @@ function [ result ] = gradient_operator_on_grid( I )
 % and return a gradient matrix
 % x:             y:
 %  0   0  0      0   0   0
-%  0   1 -1      0   1   0
-%  0   0  0      0  -1   0
+%  0  -1  1      0  -1   0
+%  0   0  0      0   1   0
 
 
 [R,C] = size(I);
@@ -15,35 +15,35 @@ function [ result ] = gradient_operator_on_grid( I )
 m = R * C;
 
 
-result_x = eye(m);
-result_y = eye(m);
+result_x = zeros(m);
+result_y = zeros(m);
 
 
-Ys = sub2ind(size(I), Py(2:R,:)  , Px(2:R,:)  );
-Yt = sub2ind(size(I), Py(1:R-1,:), Px(1:R-1,:));
+Yt = sub2ind(size(I), Py(2:R,:)  , Px(2:R,:)  );
+Ys = sub2ind(size(I), Py(1:R-1,:), Px(1:R-1,:));
 Y = [Ys(:) Yt(:)];
 
 
-Xs = sub2ind(size(I), Py(:,2:C)  , Px(:,2:C)  );
-Xt = sub2ind(size(I), Py(:,1:C-1), Px(:,1:C-1));
+Xt = sub2ind(size(I), Py(:,2:C)  , Px(:,2:C)  );
+Xs = sub2ind(size(I), Py(:,1:C-1), Px(:,1:C-1));
 X = [Xs(:) Xt(:)];
 
 
 % fill cols gradient differences x
+i = m-R+1:m;
+result_x(sub2ind(size(result_x), i, i)) =    -1;
 i = 1:m-R;
 result_x(sub2ind(size(result_x), i, X(i,1)')) =   -1;
-% result_x(sub2ind(size(result_x), i, X(i,2)')) =    1;
-j = m-R+1:m;
+result_x(sub2ind(size(result_x), i, X(i,2)')) =    1;
+
 % result_x(sub2ind(size(result_x), j, X(j-R,1)')) =  1;
 
 % fill rows gradient differences y
-% i = 1:m-C;
-% i = i+ floor(i/(R+1));
-% j = 1:m-R;
-i = Y(:,1);
-% j = 1:C;
-result_y(sub2ind(size(result_y), i,   Y(:,2))) =  -1;
-% result_y(sub2ind(size(result_y), i,   Y(:,2))) =   1;
+
+result_y(sub2ind(size(result_y), Y(:,1),   Y(:,1))) =  -1;
+result_y(sub2ind(size(result_y), Y(:,1),   Y(:,2))) =   1;
+i = R:R:m;
+result_y(sub2ind(size(result_y), i,   i)) =   -1;
 
 result = sparse([result_x;result_y]/2);
 end
