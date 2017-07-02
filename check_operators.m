@@ -50,3 +50,18 @@ for i=1:9
     t = sprintf('e.v. = %.4f',L(i,i));
     title(t);
 end
+
+% check null space
+figure;
+I = laplace_op * ones(m,1);
+imagesc(vec_img(I));
+
+% check symmetry
+if norm(laplace_op-laplace_op','fro') ~= 0
+    disp('laplace operator is not symmetric');
+end
+
+
+
+
+
